@@ -5,7 +5,7 @@ import asyncio
 import aiobotocore
 import time
 
-from s3cls import helper
+from s3clr import helper
 
 logger = helper.get_logger("s3clr")
 
