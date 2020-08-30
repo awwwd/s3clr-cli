@@ -30,8 +30,32 @@ class S3Cleanup(object):
             return True
         return False
 
+    @staticmethod
+    def _load_aws_secrets():
+        """
+        Loads all the secrets required to connect to AWS from environment variables
+        """
+        from os import environ
+        from sys import exit
+        try:
+            region_name = environ.get("AWS_DEFAULT_REGION", "us-west-2")
+            aws_access_key_id = environ["AWS_ACCESS_KEY_ID"]
+            aws_secret_access_key = environ["AWS_SECRET_ACCESS_KEY"]
+            aws_session_token = environ.get("AWS_SESSION_TOKEN", "")
+
+            _secrets = {
+                'region_name': region_name,
+                'aws_access_key_id': aws_access_key_id,
+                'aws_secret_access_key': aws_secret_access_key,
+                **({'aws_session_token': aws_session_token} if aws_session_token != "" else {})
+            }
+            return _secrets
+        except KeyError as ke:
+            logger.error("Please set the environment variables", ke)
+            exit(1)
+
     def _create_client(self):
-        return self._session.create_client('s3', **(helper.load_aws_secrets()))
+        return self._session.create_client('s3', **(S3Cleanup._load_aws_secrets()))
 
     async def s3_list(self):
         async with self._create_client() as client:
@@ -78,5 +102,5 @@ async def main():
     for c in consumers:
         c.cancel()
 
-asyncio.run(main())
 
+asyncio.run(main())
