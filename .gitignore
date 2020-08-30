@@ -130,3 +130,4 @@ dmypy.json
 
 # ide stuff - i don't want
 .idea/
+.vscode/
